@@ -1,0 +1,272 @@
+#!/usr/bin/env bash
+
+# Speed up script by not using unicode
+export LC_ALL=C
+export LANG=C
+
+print_info() {
+    info title
+    info underline
+
+    info "OS" distro
+    info "Model" model
+    info "Kernel" kernel
+    info "Uptime" uptime
+    info "Resolution" resolution
+    info "CPU" cpu
+    info "GPU" gpu
+    info "Memory" memory
+}
+
+
+# Kernel
+
+
+# Shorten the output of the kernel function.
+#
+# Default:  'on'
+# Values:   'on', 'off'
+# Flag:     --kernel_shorthand
+# Supports: Everything except *BSDs (except PacBSD and PC-BSD)
+#
+# Example:
+# on:  '4.8.9-1-ARCH'
+# off: 'Linux 4.8.9-1-ARCH'
+kernel_shorthand="on"
+
+
+# Distro
+
+
+# Shorten the output of the distro function
+#
+# Default:  'off'
+# Values:   'on', 'off', 'tiny'
+# Flag:     --distro_shorthand
+# Supports: Everything except Windows and Haiku
+distro_shorthand="off"
+
+# Show/Hide OS Architecture.
+# Show 'x86_64', 'x86' and etc in 'Distro:' output.
+#
+# Default: 'on'
+# Values:  'on', 'off'
+# Flag:    --os_arch
+#
+# Example:
+# on:  'Arch Linux x86_64'
+# off: 'Arch Linux'
+os_arch="on"
+
+# Uptime
+
+# Shorten the output of the uptime function
+#
+# Default: 'on'
+# Values:  'on', 'off', 'tiny'
+# Flag:    --uptime_shorthand
+#
+# Example:
+# on:   '2 days, 10 hours, 3 mins'
+# off:  '2 days, 10 hours, 3 minutes'
+# tiny: '2d 10h 3m'
+uptime_shorthand="tiny"
+
+# CPU
+
+# CPU speed type
+#
+# Default: 'bios_limit'
+# Values: 'scaling_cur_freq', 'scaling_min_freq', 'scaling_max_freq', 'bios_limit'.
+# Flag:    --speed_type
+# Supports: Linux with 'cpufreq'
+# NOTE: Any file in '/sys/devices/system/cpu/cpu0/cpufreq' can be used as a value.
+speed_type="bios_limit"
+
+# Shorten the output of the CPU function
+#
+# Default: 'off'
+# Values:  'on', 'off', 'tiny', 'name', 'speed'
+# Flag:    --cpu_shorthand
+#
+# Example:
+# on:    'i7-6500U (4) @ 3.1GHz'
+# off:   'Intel i7-6500U (4) @ 3.1GHz'
+# tiny:  'i7-6500U (4)'
+# name:  'Intel i7-6500U (4)'
+# speed: '3.1GHz'
+cpu_shorthand="off"
+
+# CPU Speed
+# Hide/Show CPU speed.
+#
+# Default: 'on'
+# Values:  'on', 'off'
+# Flag:    --cpu_speed
+#
+# Example:
+# on:  'Intel i7-6500U (4) @ 3.1GHz'
+# off: 'Intel i7-6500U (4)'
+cpu_speed="on"
+
+# CPU Cores
+# Display CPU cores in output
+#
+# Default: 'logical'
+# Values:  'logical', 'physical', 'off'
+# Flag:    --cpu_cores
+# Support: 'physical' doesn't work on BSD.
+#
+# Example:
+# logical:  'Intel i7-6500U (4) @ 3.1GHz' (All virtual cores)
+# physical: 'Intel i7-6500U (2) @ 3.1GHz' (All physical cores)
+# off:      'Intel i7-6500U @ 3.1GHz'
+cpu_cores="logical"
+
+# GPU
+
+# Enable/Disable GPU Brand
+#
+# Default: 'on'
+# Values:  'on', 'off'
+# Flag:    --gpu_brand
+#
+# Example:
+# on:  'AMD HD 7950'
+# off: 'HD 7950'
+gpu_brand="on"
+
+# Which GPU to display
+#
+# Default: 'all'
+# Values:  'all', 'dedicated', 'integrated'
+# Flag:    --gpu_type
+# Supports: Linux
+#
+# Example:
+# all:
+#   GPU1: AMD HD 7950
+#   GPU2: Intel Integrated Graphics
+#
+# dedicated:
+#   GPU1: AMD HD 7950
+#
+# integrated:
+#   GPU1: Intel Integrated Graphics
+gpu_type="all"
+
+
+# Resolution
+
+
+# Display refresh rate next to each monitor
+# Default: 'off'
+# Values:  'on', 'off'
+# Flag:    --refresh_rate
+# Supports: Doesn't work on Windows.
+#
+# Example:
+# on:  '1920x1080 @ 60Hz'
+# off: '1920x1080'
+refresh_rate="off"
+
+# IP Address
+
+
+# Website to ping for the public IP
+#
+# Default: 'http://ident.me'
+# Values:  'url'
+# Flag:    --ip_host
+public_ip_host="http://ident.me"
+
+
+# Progress Bars
+
+
+# Bar characters
+#
+# Default:  '-', '='
+# Values:   'string', 'string'
+# Flag:     --bar_char
+#
+# Example:
+# vq --bar_char 'elapsed' 'total'
+# vq --bar_char '-' '='
+bar_char_elapsed="-"
+bar_char_total="="
+
+# Toggle Bar border
+#
+# Default:  'on'
+# Values:   'on', 'off'
+# Flag:     --bar_border
+bar_border="on"
+
+# Progress bar length in spaces
+# Number of chars long to make the progress bars.
+#
+# Default:  '15'
+# Values:   'num'
+# Flag:     --bar_length
+bar_length=15
+
+# Progress bar colors
+# When set to distro, uses your distro's logo colors.
+#
+# Default:  'distro', 'distro'
+# Values:   'distro', 'num'
+# Flag:     --bar_colors
+#
+# Example:
+# vq --bar_colors 3 4
+# vq --bar_colors distro 5
+bar_color_elapsed="distro"
+bar_color_total="distro"
+
+
+# Info display
+# Display a bar with the info.
+#
+# Default: 'off'
+# Values:  'bar', 'infobar', 'barinfo', 'off'
+# Flags:   --cpu_display
+#          --memory_display
+#          --battery_display
+#          --disk_display
+#
+# Example:
+# bar:     '[---=======]'
+# infobar: 'info [---=======]'
+# barinfo: '[---=======] info'
+# off:     'info'
+cpu_display="off"
+memory_display="off"
+battery_display="off"
+disk_display="off"
+
+# Config Options
+
+
+# Enable/Disable config file
+#
+# Default: 'on'
+# Values:  'on', 'off'
+# Flag:    --config
+# --config off, none
+#
+# Note: This option is only used when vq sources this config
+# as a default config and NOT as a user config. Changing this in
+# your user config won't actually do anything.
+config="on"
+
+# Path to custom config file location
+#
+# Default: '${XDG_CONFIG_HOME:-${HOME}/.config}/vq/config'
+# Values:  '/path/to/config'
+# Flag:    --config_file
+#
+# Note: This option is only used when vq sources this config
+# as a default config and NOT as a user config. Changing this in
+# your user config won't actually do anything.
+config_file="${XDG_CONFIG_HOME:-${HOME}/.config}/vq/config"
